@@ -8,9 +8,10 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
   // 🧠 Use Axios to GET learners and mentors.
   // ❗ Use the variables `mentors` and `learners` to store the data.
   // ❗ Use the await keyword when using axios.
-
-  let mentors = [] // fix this
-  let learners = [] // fix this
+  const learnersResponse = await axios.get(`http://localhost:3003/api/learners`);
+  const mentorsResponse = await axios.get(`http://localhost:3003/api/mentors`);
+  let mentors = mentorsResponse.data // fix this
+  let learners = learnersResponse.data // fix this
 
   // 👆 ==================== TASK 1 END ====================== 👆
 
@@ -29,6 +30,23 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
   //   ]`
   // }
 
+  // Create a lookup table for mentor IDs to mentor names
+  const mentorLookup = {};
+  for (let mentor of mentors) {
+    mentorLookup[mentor.id] = mentor.firstName + " " + mentor.lastName;
+  }
+
+ // Replace mentor IDs with mentor names in the learners array
+ learners = learners.map(learner => {
+  return {
+    ...learner,
+    mentors: learner.mentors.map(mentorId => {
+      const mentorName = mentorLookup[mentorId];
+      return mentorName;
+    })
+  };
+});
+  
   // 👆 ==================== TASK 2 END ====================== 👆
 
   const cardsContainer = document.querySelector('.cards')
@@ -53,6 +71,27 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
     const mentorsHeading = document.createElement('h4')
     const mentorsList = document.createElement('ul')
 
+    // Adding initial classes and content
+    card.classList.add('card')
+    heading.classList.add('learner-name')
+    heading.textContent = learner.fullName
+    email.classList.add('learner-email')
+    email.textContent = learner.email
+    mentorsHeading.classList.add('closed')
+    mentorsHeading.textContent = 'Mentors'
+
+    // Appending mentors to the mentorsList
+    learner.mentors.forEach(mentorName => {
+      const li = document.createElement('li')
+      li.textContent = mentorName
+      mentorsList.appendChild(li)
+    })
+
+    // Nesting elements properly
+    card.appendChild(heading)
+    card.appendChild(email)
+    card.appendChild(mentorsHeading)
+    card.appendChild(mentorsList)
     // 👆 ==================== TASK 3 END ====================== 👆
 
     // 👆 WORK ONLY ABOVE THIS LINE 👆
